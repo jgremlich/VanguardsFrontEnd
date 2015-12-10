@@ -1,6 +1,5 @@
 // setup Express
 var app = require('./models/express.js');
-var $ = require("jquery");
 
 // start the server
 var server = app.listen(3000, function() {

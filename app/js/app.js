@@ -55,9 +55,27 @@ var GameDetails = React.createClass({
             <div>
                 <h1>Game Details</h1>
                 <p>TODO: fill in game details for game number {this.props.params.gameid}</p>
+                <div id="visualization"></div>
             </div>
         );
+    },
+    componentDidMount: function (){
+        this.createTimeline();
+    },
+    createTimeline: function (){
+        var container = document.getElementById('visualization');
+        var options = {};
+        var items = new vis.DataSet([
+            {id: 1, content: 'Game Start', start: '2015-12-10 00:00:00'},
+            {id: 2, content: 'Ball Picked Up', start: '2015-12-10 00:00:45'},
+            {id: 3, content: 'Shrine Destroyed', start: '2015-12-10 00:02:45'},
+            {id: 4, content: 'Shrine Vulnerable', start: '2015-12-10 00:02:10', end: '2015-12-10 00:02:45'},
+            {id: 5, content: 'Shrine Destroyed', start: '2015-12-10 00:03:50'},
+            {id: 6, content: 'Game Over', start: '2015-12-10 00:05:22'}
+        ]); 
+        var timeline = new vis.Timeline(container, items, options);
     }
+    
 });
 
 var Game = React.createClass({
@@ -77,7 +95,13 @@ var Game = React.createClass({
 
 var GamesList = React.createClass({
     render: function() {
-        var gameNodes = this.props.data.map(function(game) {
+        console.log(this.props.data);
+        var json = [];
+        if(this.props.data != ""){
+            json = JSON.parse(this.props.data);
+            console.log(json);
+        }
+        var gameNodes = json.map(function(game) {
             return (
                 <Game id={game.id} time={game.time} winner={game.winningTeam} key={game.id}>
                 </Game>
@@ -107,7 +131,8 @@ var Page = React.createClass({
             dataType: 'json',
             cache: false,
             success: function(data) {
-                this.setState({data: data})
+                this.setState({data: data});
+                console.log("Retreived data from server");
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
@@ -118,14 +143,14 @@ var Page = React.createClass({
         return {data:[]};
     },
     componentDidMount: function() {
-        //this.loadGamesFromServer();
+        this.loadGamesFromServer();
         //setInterval(this.loadGamesFromServer, 2000);
     },
     render: function() {
         return (
         <div>
             <h1>Recorded Games</h1>
-            <GamesList data={oldData} />
+            <GamesList data={this.state.data} />
         </div>
         );
   }
