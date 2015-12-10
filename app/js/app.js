@@ -54,7 +54,7 @@ var GameDetails = React.createClass({
         return(
             <div>
                 <h1>Game Details</h1>
-                <p>TODO: fill in game details</p>
+                <p>TODO: fill in game details for game number {this.props.params.gameid}</p>
             </div>
         );
     }
@@ -62,8 +62,9 @@ var GameDetails = React.createClass({
 
 var Game = React.createClass({
     render: function(){
+        var url = "/#/gameDetails/"+this.props.id;
         return (
-            <a href="/GameDetails" className="list-group-item">
+            <a href={url} className="list-group-item">
                 <div className="row">
                     <div className="col-md-4">{this.props.id}</div>
                     <div className="col-md-4">{this.props.time}</div>
@@ -117,14 +118,14 @@ var Page = React.createClass({
         return {data:[]};
     },
     componentDidMount: function() {
-        this.loadGamesFromServer();
+        //this.loadGamesFromServer();
         //setInterval(this.loadGamesFromServer, 2000);
     },
     render: function() {
         return (
         <div>
             <h1>Recorded Games</h1>
-            <GamesList data={this.state.data} />
+            <GamesList data={oldData} />
         </div>
         );
   }
@@ -135,7 +136,8 @@ var routes = (
       <Router>
         <Route name="app" path="/" component={App}>
           <Route name="page" path="/page" component={Page} />
-          <Route name="gameDetails" path="/gameDetails" component={GameDetails}/>
+          <Route name="gameDetails" path="/gameDetails/:gameid" component={GameDetails}/>
+          <Route name="home" path="/" component={GameDetails}/>
           <Route path="*" component={Home}/>
         </Route>
       </Router>
