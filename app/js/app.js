@@ -15,14 +15,14 @@ var App = React.createClass({
                    <span className="icon-bar"></span>
                    <span className="icon-bar"></span>
                 </button>
-                <a className="navbar-brand" href="/">Vanguards</a>
+                <a className="navbar-brand" href="/#/home">Vanguards</a>
               </div>
               <div className="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul className="nav navbar-nav">
                   <li><Link to="page">Games</Link></li>
                 </ul>
 				<ul className="nav navbar-nav">
-                  <li><Link to="liveGamesPage">Live Games</Link></li>
+                  <li><Link to="abilityInfoPage">Ability Info</Link></li>
                 </ul>
 				<ul className="nav navbar-nav">
                   <li><Link to="download">Download</Link></li>
@@ -75,7 +75,7 @@ var SignupForm = React.createClass({
     if (!username || !password){
       return;
     }
-    this.handleSignupSubmit({User:{username: username, password: password, role: none, account_level: 1}});//this.props.onSignupSubmit({username: username, password: password});
+    this.handleSignupSubmit({username: username, password: password, role: "none", account_level: 1});//this.props.onSignupSubmit({username: username, password: password});
     this.setState({username: '', password: ''});
   },
 
@@ -87,10 +87,9 @@ var SignupForm = React.createClass({
       data: user,
       success: function(data){
         this.setState({data:data});
-        console.error("SUCCESS")
+        console.log(data);
       }.bind(this),
       error: function(xhr, status, err){
-        console.error("FAILURE")
         console.error("http://52.35.193.149:8080/Vanguards/CreateUser", status, err.toString());
       }.bind(this)
     });
@@ -98,11 +97,14 @@ var SignupForm = React.createClass({
 
   render: function() {
     return (
-      <form className="signupForm" onSubmit={this.handleSubmit}>
-        <input type="text" placeholder="Username" value={this.state.username} onChange={this.handleUsernameChange} /><br/><br/>
-        <input type="password" placeholder="Password" value={this.state.password} onChange={this.handlePasswordChange} /><br/><br/><br/>
-        <input type="submit" value="Create" />
-      </form>
+      <div>
+        <h3>Create Account</h3>
+        <form className="signupForm" onSubmit={this.handleSubmit}>
+          <input type="text" placeholder="Username" value={this.state.username} onChange={this.handleUsernameChange} /><br/><br/>
+          <input type="password" placeholder="Password" value={this.state.password} onChange={this.handlePasswordChange} /><br/><br/><br/>
+          <input type="submit" value="Create" />
+        </form>
+      </div>
     );
   }
 });
@@ -181,6 +183,111 @@ var GamesList = React.createClass({
                     </a>
                     {gameNodes}
                 </div>
+            </div>
+        );
+    }
+});
+var PlayerAbilityHeader = React.createClass({
+   render: function(){
+        var url = "/#/playerAbilities/"+this.props.id;
+        var abilitySetNodes = this.props.abilitySets.map(function(abSet){
+            return (
+                <PlayerAbilitySet key={Math.random(0, 1000000)} ab1={abSet.Ability1} ab2={abSet.Ability2} ab3={abSet.Ability3} 
+                ab4={abSet.Ability4} numPicked={abSet.TimesPicked} lastPicked={abSet.LastPicked}>
+                </PlayerAbilitySet>
+            );
+        });
+        var singlePickedNodes = this.props.singleAbilities.map(function(abset){
+            return (
+                <PlayerSinglePickedAbility key={Math.random(0, 1000000)} abilityName={abset.Ability} numPicked={abset.TimesPicked} lastPicked={abset.LastPicked}>
+                </PlayerSinglePickedAbility>
+            
+            );
+        });
+        return (
+        <div>
+                <a className="list-group-item">
+                <div className="row">Username: {this.props.username}</div>
+                </a>
+                <a className="list-group-item">
+                <div className="row">Ability Sets</div>
+                </a>
+                {abilitySetNodes}
+                <a className="list-group-item">
+                <div className="row">Single Ability Picks</div>
+                </a>
+                {singlePickedNodes}
+        </div>
+            
+
+        );
+    } 
+});
+
+var PlayerAbilitySet = React.createClass({
+    render: function(){
+        var img1 = this.props.ab1 + ".png"
+        var img2 = this.props.ab2 + ".png"
+        var img3 = this.props.ab3 + ".png"
+        var img4 = this.props.ab4 + ".png"
+        return (
+        <a className="list-group-item">
+                    <div className="row">
+                        <img className="col-md-1" src={img1} alt={this.props.ab1}></img>
+                        <img className="col-md-1" src={img2} alt={this.props.ab2}></img>
+                        <img className="col-md-1" src={img3} alt={this.props.ab3}></img>
+                        <img className="col-md-1" src={img4} alt={this.props.ab4}></img>
+                        <div className="col-md-2">{this.props.numPicked}</div>
+                        <div className="col-md-2">{this.props.lastPicked}</div>
+                    </div>
+            </a>
+        );
+    }
+});
+
+var PlayerSinglePickedAbility = React.createClass({
+    render: function(){
+        var img1 = this.props.abilityName + ".png"
+        return (
+        <a className="list-group-item">
+                    <div className="row">
+                        <img className="col-md-1" src={img1} alt={this.props.abilityName}></img>
+                        <div className="col-md-4">{this.props.numPicked}</div>
+                        <div className="col-md-4">{this.props.lastPicked}</div>
+                    </div>
+            </a>
+        );
+    }
+    
+});
+
+var AbilityData = React.createClass({
+    render: function() {
+        console.log(this.props.data);
+        var json = [];
+        if(this.props.data != ""){
+            json = JSON.parse(this.props.data);
+            console.log(json);
+        }
+        var usernameNodes = json.map(function(userAbilityData) {
+            return (
+                <PlayerAbilityHeader username={userAbilityData.Username} key={userAbilityData._id} abilitySets={userAbilityData.AbilitySets} singleAbilities={userAbilityData.SingleAbilityPicks}>
+                </PlayerAbilityHeader>
+            );
+        });
+        return (
+            <div>
+                <div className="list-group">
+                    <a className="list-group-item active">
+                        <div className="row">
+                            <div className="col-md-4">GameID</div>
+                            <div className="col-md-4">Time</div>
+                            <div className="col-md-4">WinningTeam</div>
+                        </div>
+                    </a>
+                    {usernameNodes}
+                </div>
+                
             </div>
         );
     }
@@ -288,10 +395,10 @@ var Deathmap = React.createClass({
 	datas: []
 });
 
-var LiveGamesPage = React.createClass({
-    loadGamesFromServer: function() {
+var AbilityInfoPage = React.createClass({
+    loadAbilityDataFromServer: function() {
         $.ajax({
-            url: "http://52.35.193.149:8080/Vanguards/GetGamesList",
+            url: "http://52.35.193.149:8080/Vanguards/RawPlayerAbilityData",
             dataType: 'json',
             cache: false,
             success: function(data) {
@@ -307,14 +414,14 @@ var LiveGamesPage = React.createClass({
         return {data:[]};
     },
     componentDidMount: function() {
-        this.loadGamesFromServer();
-        setInterval(this.loadGamesFromServer, 2000);
+        this.loadAbilityDataFromServer();
+        //setInterval(this.loadAbilityDataFromServer, 2000);
     },
     render: function() {
         return (
         <div>
-            <h1>Live Games</h1>
-            <GamesList data={this.state.data} />
+            <h1>AbilityInfo</h1>
+            <AbilityData data={this.state.data} />
         </div>
         );
   }
@@ -323,13 +430,12 @@ var LiveGamesPage = React.createClass({
 // Run the routes
 var routes = (
       <Router>
-        <Route name="app" path="/" component={App}>
-          <Route name="page" path="/page" component={Page} />
-    			<Route name="liveGamesPage" path="/livegamespage" component={LiveGamesPage} />
-    		  <Route name="download" path="/download" component={Download} />
+        <Route path="/" component={App}>
+          <Route path="page" component={Page} />
+          <Route path="abilityInfoPage" component={AbilityInfoPage} />
+    		  <Route path="download" component={Download} />
 			  <Route name="deathmap" path="/deathmap" component={Deathmap} />
-          <Route name="gameDetails" path="/gameDetails/:gameid" component={GameDetails}/>
-          <Route name="home" path="/" component={GameDetails}/>
+          <Route path="gameDetails/:gameid" component={GameDetails}/>
           <Route path="*" component={Home}/>
         </Route>
       </Router>
