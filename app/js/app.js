@@ -129,6 +129,51 @@ var GamesList = React.createClass({
         );
     }
 });
+var PlayerAbilityHeader = React.createClass({
+   render: function(){
+        var url = "/#/playerAbilities/"+this.props.id;
+        return (
+            <a href={url} className="list-group-item">
+                <div className="row">
+                    <div className="col-md-4">{this.props.username}</div>
+                    <div className="col-md-4">{this.props.setList}</div>
+                    <div className="col-md-4">{this.props.singleList}</div>
+                </div>
+            </a>
+        );
+    } 
+});
+
+var AbilityData = React.createClass({
+    render: function() {
+        console.log(this.props.data);
+        var json = [];
+        if(this.props.data != ""){
+            json = JSON.parse(this.props.data);
+            console.log(json);
+        }
+        var usernameNodes = json.map(function(userAbilityData) {
+            return (
+                <PlayerAbilityHeader username={userAbilityData.Username} setList={userAbilityData.AbilitySets} singleList={userAbilityData.SingleAbilityPicks}>
+                </PlayerAbilityHeader>
+            );
+        });
+        return (
+            <div>
+                <div className="list-group">
+                    <a className="list-group-item active">
+                        <div className="row">
+                            <div className="col-md-4">GameID</div>
+                            <div className="col-md-4">Time</div>
+                            <div className="col-md-4">WinningTeam</div>
+                        </div>
+                    </a>
+                    {usernameNodes}
+                </div>
+            </div>
+        );
+    }
+});
 
 var Page = React.createClass({
     loadGamesFromServer: function() {
@@ -173,9 +218,9 @@ var Download = React.createClass({
   }
 });
 var LiveGamesPage = React.createClass({
-    loadGamesFromServer: function() {
+    loadAbilityDataFromServer: function() {
         $.ajax({
-            url: "http://52.35.193.149:8080/Vanguards/GetGamesList",
+            url: "http://52.35.193.149:8080/Vanguards/RawPlayerAbilityData",
             dataType: 'json',
             cache: false,
             success: function(data) {
@@ -191,14 +236,14 @@ var LiveGamesPage = React.createClass({
         return {data:[]};
     },
     componentDidMount: function() {
-        this.loadGamesFromServer();
-        setInterval(this.loadGamesFromServer, 2000);
+        this.loadAbilityDataFromServer();
+        setInterval(this.loadAbilityDataFromServer, 2000);
     },
     render: function() {
         return (
         <div>
             <h1>Live Games</h1>
-            <GamesList data={this.state.data} />
+            <AbilityData data={this.state.data} />
         </div>
         );
   }
