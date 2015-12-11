@@ -332,7 +332,8 @@ var Download = React.createClass({
 var AbilityInfoPage = React.createClass({
     loadAbilityDataFromServer: function() {
         $.ajax({
-            url: "http://52.35.193.149:8080/Vanguards/RawPlayerAbilityData",
+            url: "http://52.35.193.149:8080/Vanguards/RawPlayerAbilityData?auth=JSV5L0XMACTETXCPQMVS",
+            crossDomain:true,
             dataType: 'json',
             cache: false,
             success: function(data) {
