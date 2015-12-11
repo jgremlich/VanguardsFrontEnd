@@ -21,6 +21,9 @@ var App = React.createClass({
                 <ul className="nav navbar-nav">
                   <li><Link to="page">Games</Link></li>
                 </ul>
+                <ul className="nav navbar-nav">
+                  <li><Link to="liveGamesPage">Live Games</Link></li>
+                </ul>
               </div>
             </div>
         </nav>
@@ -156,11 +159,44 @@ var Page = React.createClass({
   }
 });
 
+var LiveGamesPage = React.createClass({
+    loadGamesFromServer: function() {
+        $.ajax({
+            url: "http://52.35.193.149:8080/Vanguards/GetGamesList",
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                this.setState({data: data});
+                console.log("Retreived data from server");
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        });
+    },
+    getInitialState: function(){
+        return {data:[]};
+    },
+    componentDidMount: function() {
+        this.loadGamesFromServer();
+        setInterval(this.loadGamesFromServer, 2000);
+    },
+    render: function() {
+        return (
+        <div>
+            <h1>Live Games</h1>
+            <GamesList data={this.state.data} />
+        </div>
+        );
+  }
+});
+
 // Run the routes
 var routes = (
       <Router>
         <Route name="app" path="/" component={App}>
           <Route name="page" path="/page" component={Page} />
+          <Route name="liveGamesPage" path="/livegamespage" component={LiveGamesPage} />
           <Route name="gameDetails" path="/gameDetails/:gameid" component={GameDetails}/>
           <Route name="home" path="/" component={GameDetails}/>
           <Route path="*" component={Home}/>
