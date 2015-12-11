@@ -21,11 +21,14 @@ var App = React.createClass({
                 <ul className="nav navbar-nav">
                   <li><Link to="page">Games</Link></li>
                 </ul>
-				<ul className="nav navbar-nav">
+				        <ul className="nav navbar-nav">
                   <li><Link to="abilityInfoPage">Ability Info</Link></li>
                 </ul>
-				<ul className="nav navbar-nav">
+				        <ul className="nav navbar-nav">
                   <li><Link to="download">Download</Link></li>
+                </ul>
+				        <ul className="nav navbar-nav">
+                  <li><Link to="deathmap">Deathmap</Link></li>
                 </ul>
                 <ul className="nav navbar-nav">
                   <li><Link to="login">Login</Link></li>
@@ -388,6 +391,67 @@ var Download = React.createClass({
         );
   }
 });
+
+var Deathmap = React.createClass({
+    render: function() {
+        return (
+        <div>
+            <h1>Death Locations!</h1>
+            <canvas id="canvas" width="693" height="158"></canvas>
+        </div>
+        );
+	},
+	componentDidMount: function (){
+		this.getDeathsFromServer();
+        
+    },
+	getDeathsFromServer: function (){
+		$.ajax({
+            url: "http://52.35.193.149:8080/Vanguards/GetDeathInfo",
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+				console.log(data);
+                this.setState({data: data});
+				console.log(this.state.data);
+				this.createDeathmap();
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        });
+	},
+	createDeathmap: function () {
+		var json = [];
+		var heat = simpleheat('canvas');
+		heat.max(18);
+		console.log(this.state.data);
+        if(this.state.data != ""){
+            json = JSON.parse(this.state.data);
+			for(var i = 0; i < json.length; i++){
+				var vals = json[i].split(",");
+				var xval = parseInt(vals[0]);
+				xval = (xval/20)+(693/2);
+				var yval = parseInt(vals[1]);
+				yval = (yval/20)+(158/2);
+				console.log(Math.round(xval)+" "+Math.round(yval));
+				this.datas.push([Math.round(xval),Math.round(yval),1]);
+			}
+			heat.radius(10,5);
+			heat.data(this.datas);
+			heat.draw();
+			var c = document.getElementById("canvas");
+			var ctx = c.getContext("2d");
+			ctx.fillStyle = "#009933";
+			ctx.fillRect(0,0,693,158);
+        }
+	},
+	getInitialState: function( ){
+        return {data:[]};
+    },
+	datas: []
+});
+
 var AbilityInfoPage = React.createClass({
     loadAbilityDataFromServer: function() {
         $.ajax({
@@ -428,6 +492,7 @@ var routes = (
           <Route path="abilityInfoPage" component={AbilityInfoPage} />
     		  <Route path="download" component={Download} />
           <Route path="login" component={Login} />
+          <Route path="deathmap" component={Deathmap} />
           <Route path="gameDetails/:gameid" component={GameDetails} />
           <Route path="*" component={Home} />
         </Route>
