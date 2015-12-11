@@ -27,6 +27,9 @@ var App = React.createClass({
 				<ul className="nav navbar-nav">
                   <li><Link to="download">Download</Link></li>
                 </ul>
+                <ul className="nav navbar-nav">
+                  <li><Link to="login">Login</Link></li>
+                </ul>
               </div>
             </div>
         </nav>
@@ -105,6 +108,60 @@ var SignupForm = React.createClass({
     );
   }
 });
+
+
+var Login = React.createClass({
+  getInitialState: function() {
+    return {username: '', password: ''};
+  },
+
+  handleUsernameChange: function(e) {
+    this.setState({username: e.target.value});
+  },
+
+  handlePasswordChange: function(e) {
+    this.setState({password: e.target.value});
+  },
+
+  handleSubmit: function(e) {
+    e.preventDefault();
+    var username = this.state.username.trim();
+    var password = this.state.password.trim();
+    if (!username || !password){
+      return;
+    }
+    this.handleLoginSubmit({username: username, password: password});//this.props.onSignupSubmit({username: username, password: password});
+    this.setState({username: '', password: ''});
+  },
+
+  handleLoginSubmit: function(user){
+    $.ajax({
+      url: "http://52.35.193.149:8080/Vanguards/Login",
+      data: user,
+      success: function(data){
+        this.setState({data:data});
+        console.log(data);
+      }.bind(this),
+      error: function(xhr, status, err){
+        console.error("http://52.35.193.149:8080/Vanguards/Login", status, err.toString());
+      }.bind(this)
+    });
+  },
+
+  render: function() {
+    return (
+      <div>
+        <h1>Login</h1>
+        <form className="loginForm" onSubmit={this.handleSubmit}>
+          <input type="text" placeholder="Username" value={this.state.username} onChange={this.handleUsernameChange} /><br/><br/>
+          <input type="password" placeholder="Password" value={this.state.password} onChange={this.handlePasswordChange} /><br/><br/><br/>
+          <input type="submit" value="Submit" />
+        </form>
+      </div>
+    );
+  }
+});
+
 
 var oldData = [
     {id: 1, time: 5, winningTeam: "Red"},
@@ -370,8 +427,9 @@ var routes = (
           <Route path="page" component={Page} />
           <Route path="abilityInfoPage" component={AbilityInfoPage} />
     		  <Route path="download" component={Download} />
-          <Route path="gameDetails/:gameid" component={GameDetails}/>
-          <Route path="*" component={Home}/>
+          <Route path="login" component={Login} />
+          <Route path="gameDetails/:gameid" component={GameDetails} />
+          <Route path="*" component={Home} />
         </Route>
       </Router>
 );
