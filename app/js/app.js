@@ -72,7 +72,7 @@ var SignupForm = React.createClass({
     if (!username || !password){
       return;
     }
-    this.handleSignupSubmit({User:{username: username, password: password}});//this.props.onSignupSubmit({username: username, password: password});
+    this.handleSignupSubmit({User:{username: username, password: password, role: none, account_level: 1}});//this.props.onSignupSubmit({username: username, password: password});
     this.setState({username: '', password: ''});
   },
 
