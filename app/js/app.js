@@ -1,6 +1,7 @@
 var Router = ReactRouter.Router;
 var Link = ReactRouter.Link;
 var Route = ReactRouter.Route;
+var authToken = "";
 
 var App = React.createClass({
   render: function() {
@@ -141,8 +142,11 @@ var Login = React.createClass({
     $.ajax({
       url: "http://52.35.193.149:8080/Vanguards/Login",
       data: user,
-      success: function(data){
+      success: function(data, textStatus, request){
         this.setState({data:data});
+        //var actRequest = JSON.parse(request);
+        //alert(actRequest);
+        authToken = request.getResponseHeader('Authorization');
         console.log(data);
       }.bind(this),
       error: function(xhr, status, err){
@@ -455,7 +459,7 @@ var Deathmap = React.createClass({
 var AbilityInfoPage = React.createClass({
     loadAbilityDataFromServer: function() {
         $.ajax({
-            url: "http://52.35.193.149:8080/Vanguards/RawPlayerAbilityData?auth=JSV5L0XMACTETXCPQMVS",
+            url: "http://52.35.193.149:8080/Vanguards/RawPlayerAbilityData?auth="+authToken,
             crossDomain:true,
             dataType: 'json',
             cache: false,
