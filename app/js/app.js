@@ -84,7 +84,6 @@ var SignupForm = React.createClass({
       data: user,
       success: function(data){
         this.setState({data:data});
-        console.error("SUCCESS")
       }.bind(this),
       error: function(xhr, status, err){
         console.error("http://52.35.193.149:8080/Vanguards/CreateUser", status, err.toString());
