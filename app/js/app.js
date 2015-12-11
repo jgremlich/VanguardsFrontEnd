@@ -15,7 +15,7 @@ var App = React.createClass({
                    <span className="icon-bar"></span>
                    <span className="icon-bar"></span>
                 </button>
-                <a className="navbar-brand" href="/">Vanguards</a>
+                <a className="navbar-brand" href="/#/home">Vanguards</a>
               </div>
               <div className="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul className="nav navbar-nav">
@@ -72,7 +72,7 @@ var SignupForm = React.createClass({
     if (!username || !password){
       return;
     }
-    this.handleSignupSubmit({User:{username: username, password: password, role: none, account_level: 1}});//this.props.onSignupSubmit({username: username, password: password});
+    this.handleSignupSubmit({User:{username: username, password: password, role: "none", account_level: 1}});//this.props.onSignupSubmit({username: username, password: password});
     this.setState({username: '', password: ''});
   },
 
@@ -87,7 +87,6 @@ var SignupForm = React.createClass({
         console.error("SUCCESS")
       }.bind(this),
       error: function(xhr, status, err){
-        console.error("FAILURE")
         console.error("http://52.35.193.149:8080/Vanguards/CreateUser", status, err.toString());
       }.bind(this)
     });
@@ -95,11 +94,14 @@ var SignupForm = React.createClass({
 
   render: function() {
     return (
-      <form className="signupForm" onSubmit={this.handleSubmit}>
-        <input type="text" placeholder="Username" value={this.state.username} onChange={this.handleUsernameChange} /><br/><br/>
-        <input type="password" placeholder="Password" value={this.state.password} onChange={this.handlePasswordChange} /><br/><br/><br/>
-        <input type="submit" value="Create" />
-      </form>
+      <div>
+        <h3>Create Account</h3>
+        <form className="signupForm" onSubmit={this.handleSubmit}>
+          <input type="text" placeholder="Username" value={this.state.username} onChange={this.handleUsernameChange} /><br/><br/>
+          <input type="password" placeholder="Password" value={this.state.password} onChange={this.handlePasswordChange} /><br/><br/><br/>
+          <input type="submit" value="Create" />
+        </form>
+      </div>
     );
   }
 });
@@ -364,12 +366,11 @@ var AbilityInfoPage = React.createClass({
 // Run the routes
 var routes = (
       <Router>
-        <Route name="app" path="/" component={App}>
-          <Route name="page" path="/page" component={Page} />
-          <Route name="abilityInfoPage" path="/abilityInfoPage" component={AbilityInfoPage} />
-		  <Route name="download" path="/download" component={Download} />
-          <Route name="gameDetails" path="/gameDetails/:gameid" component={GameDetails}/>
-          <Route name="home" path="/" component={GameDetails}/>
+        <Route path="/" component={App}>
+          <Route path="page" component={Page} />
+          <Route path="abilityInfoPage" component={AbilityInfoPage} />
+    		  <Route path="download" component={Download} />
+          <Route path="gameDetails/:gameid" component={GameDetails}/>
           <Route path="*" component={Home}/>
         </Route>
       </Router>
