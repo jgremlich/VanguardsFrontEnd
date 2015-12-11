@@ -57,11 +57,10 @@ var oldData = [
 
 var GameDetails = React.createClass({
     render: function(){
+        var compid = "vis" + this.props.gameid;
         return(
             <div>
-                <h1>Game Details</h1>
-                <p>TODO: fill in game details for game number {this.props.params.gameid}</p>
-                <div id="visualization"></div>
+                <div id={compid}></div>
             </div>
         );
     },
@@ -69,15 +68,14 @@ var GameDetails = React.createClass({
         this.createTimeline();
     },
     createTimeline: function (){
-        var container = document.getElementById('visualization');
+        var container = document.getElementById('vis'+this.props.gameid);
         var options = {};
+        console.log(this.props.events);
         var items = new vis.DataSet([
-            {id: 1, content: 'Game Start', start: '2015-12-10 00:00:00'},
-            {id: 2, content: 'Ball Picked Up', start: '2015-12-10 00:00:45'},
-            {id: 3, content: 'Shrine Destroyed', start: '2015-12-10 00:02:45'},
-            {id: 4, content: 'Shrine Vulnerable', start: '2015-12-10 00:02:10', end: '2015-12-10 00:02:45'},
-            {id: 5, content: 'Shrine Destroyed', start: '2015-12-10 00:03:50'},
-            {id: 6, content: 'Game Over', start: '2015-12-10 00:05:22'}
+            {id: 1, content: 'Game Start', start: this.props.events.gameStart},
+            {id: 3, content: 'Right Shrine Destroyed', start: this.props.events.RightShrineDestroyed},
+            {id: 5, content: 'Left Shrine Destroyed', start: this.props.events.LeftShrineDestroyed},
+            {id: 6, content: 'Game Over', start: this.props.events.GameOver}
         ]); 
         var timeline = new vis.Timeline(container, items, options);
     }
@@ -86,14 +84,17 @@ var GameDetails = React.createClass({
 
 var Game = React.createClass({
     render: function(){
-        var url = "/#/gameDetails/"+this.props.id;
+        console.log(this.props.gameInfo.events.gameStart);
+        var url = "/#/gameDetails/"+this.props.gameInfo.events.gameStart;
         return (
-            <a href={url} className="list-group-item">
+            <a className="list-group-item">
                 <div className="row">
-                    <div className="col-md-4">{this.props.id}</div>
-                    <div className="col-md-4">{this.props.time}</div>
-                    <div className="col-md-4">{this.props.winner}</div>
+                    <div className="col-md-4">Floating</div>
+                    <div className="col-md-4">{this.props.gameInfo.gametime}</div>
+                    <div className="col-md-4">{this.props.gameInfo.winning_team}</div>
                 </div>
+                <GameDetails gameid={this.props.gameid} events={this.props.gameInfo.events}>
+                </GameDetails>
             </a>
         );
     }
@@ -101,15 +102,13 @@ var Game = React.createClass({
 
 var GamesList = React.createClass({
     render: function() {
-        console.log(this.props.data);
         var json = [];
         if(this.props.data != ""){
             json = JSON.parse(this.props.data);
-            console.log(json);
         }
         var gameNodes = json.map(function(game) {
             return (
-                <Game id={game.id} time={game.time} winner={game.winningTeam} key={game.id}>
+                <Game gameInfo={game.GameInfo} gameid={game._id} key={game._id}>
                 </Game>
             );
         });
@@ -118,7 +117,7 @@ var GamesList = React.createClass({
                 <div className="list-group">
                     <a className="list-group-item active">
                         <div className="row">
-                            <div className="col-md-4">GameID</div>
+                            <div className="col-md-4">Map</div>
                             <div className="col-md-4">Time</div>
                             <div className="col-md-4">WinningTeam</div>
                         </div>
@@ -183,7 +182,6 @@ var Page = React.createClass({
             cache: false,
             success: function(data) {
                 this.setState({data: data});
-                console.log("Retreived data from server");
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
