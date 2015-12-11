@@ -39,13 +39,67 @@ var App = React.createClass({
   }
 });
 
+
 var Home = React.createClass({
   render: function() {
     return (
       <div>
-        <h1>Home</h1>
-        <p>Put your home page here</p>
+        <h1>Vanguards</h1>
+        <SignupForm />
+        
       </div>
+    );
+  }
+});
+
+var SignupForm = React.createClass({
+  getInitialState: function() {
+    return {username: '', password: ''};
+  },
+
+  handleUsernameChange: function(e) {
+    this.setState({username: e.target.value});
+  },
+
+  handlePasswordChange: function(e) {
+    this.setState({password: e.target.value});
+  },
+
+  handleSubmit: function(e) {
+    e.preventDefault();
+    var username = this.state.username.trim();
+    var password = this.state.password.trim();
+    if (!username || !password){
+      return;
+    }
+    this.handleSignupSubmit({User:{username: username, password: password}});//this.props.onSignupSubmit({username: username, password: password});
+    this.setState({username: '', password: ''});
+  },
+
+  handleSignupSubmit: function(user){
+    $.ajax({
+      url: "http://52.35.193.149:8080/Vanguards/CreateUser",
+      dataType: 'json',
+      type: 'POST',
+      data: user,
+      success: function(data){
+        this.setState({data:data});
+        console.error("SUCCESS")
+      }.bind(this),
+      error: function(xhr, status, err){
+        console.error("FAILURE")
+        console.error("http://52.35.193.149:8080/Vanguards/CreateUser", status, err.toString());
+      }.bind(this)
+    });
+  },
+
+  render: function() {
+    return (
+      <form className="signupForm" onSubmit={this.handleSubmit}>
+        <input type="text" placeholder="Username" value={this.state.username} onChange={this.handleUsernameChange} /><br/><br/>
+        <input type="password" placeholder="Password" value={this.state.password} onChange={this.handlePasswordChange} /><br/><br/><br/>
+        <input type="submit" value="Create" />
+      </form>
     );
   }
 });
@@ -207,8 +261,8 @@ var routes = (
       <Router>
         <Route name="app" path="/" component={App}>
           <Route name="page" path="/page" component={Page} />
-			<Route name="liveGamesPage" path="/livegamespage" component={LiveGamesPage} />
-		  <Route name="download" path="/download" component={Download} />
+    			<Route name="liveGamesPage" path="/livegamespage" component={LiveGamesPage} />
+    		  <Route name="download" path="/download" component={Download} />
           <Route name="gameDetails" path="/gameDetails/:gameid" component={GameDetails}/>
           <Route name="home" path="/" component={GameDetails}/>
           <Route path="*" component={Home}/>
