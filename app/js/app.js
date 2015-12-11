@@ -15,17 +15,23 @@ var App = React.createClass({
                    <span className="icon-bar"></span>
                    <span className="icon-bar"></span>
                 </button>
-                <a className="navbar-brand" href="/">Vanguards</a>
+                <a className="navbar-brand" href="/#/home">Vanguards</a>
               </div>
               <div className="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul className="nav navbar-nav">
                   <li><Link to="page">Games</Link></li>
                 </ul>
-				<ul className="nav navbar-nav">
+				        <ul className="nav navbar-nav">
                   <li><Link to="abilityInfoPage">Ability Info</Link></li>
                 </ul>
-				<ul className="nav navbar-nav">
+				        <ul className="nav navbar-nav">
                   <li><Link to="download">Download</Link></li>
+                </ul>
+				        <ul className="nav navbar-nav">
+                  <li><Link to="deathmap">Deathmap</Link></li>
+                </ul>
+                <ul className="nav navbar-nav">
+                  <li><Link to="login">Login</Link></li>
                 </ul>
               </div>
             </div>
@@ -72,7 +78,7 @@ var SignupForm = React.createClass({
     if (!username || !password){
       return;
     }
-    this.handleSignupSubmit({User:{username: username, password: password, role: none, account_level: 1}});//this.props.onSignupSubmit({username: username, password: password});
+    this.handleSignupSubmit({username: username, password: password, role: "none", account_level: 1});//this.props.onSignupSubmit({username: username, password: password});
     this.setState({username: '', password: ''});
   },
 
@@ -84,10 +90,9 @@ var SignupForm = React.createClass({
       data: user,
       success: function(data){
         this.setState({data:data});
-        console.error("SUCCESS")
+        console.log(data);
       }.bind(this),
       error: function(xhr, status, err){
-        console.error("FAILURE")
         console.error("http://52.35.193.149:8080/Vanguards/CreateUser", status, err.toString());
       }.bind(this)
     });
@@ -95,14 +100,71 @@ var SignupForm = React.createClass({
 
   render: function() {
     return (
-      <form className="signupForm" onSubmit={this.handleSubmit}>
-        <input type="text" placeholder="Username" value={this.state.username} onChange={this.handleUsernameChange} /><br/><br/>
-        <input type="password" placeholder="Password" value={this.state.password} onChange={this.handlePasswordChange} /><br/><br/><br/>
-        <input type="submit" value="Create" />
-      </form>
+      <div>
+        <h3>Create Account</h3>
+        <form className="signupForm" onSubmit={this.handleSubmit}>
+          <input type="text" placeholder="Username" value={this.state.username} onChange={this.handleUsernameChange} /><br/><br/>
+          <input type="password" placeholder="Password" value={this.state.password} onChange={this.handlePasswordChange} /><br/><br/><br/>
+          <input type="submit" value="Create" />
+        </form>
+      </div>
     );
   }
 });
+
+
+var Login = React.createClass({
+  getInitialState: function() {
+    return {username: '', password: ''};
+  },
+
+  handleUsernameChange: function(e) {
+    this.setState({username: e.target.value});
+  },
+
+  handlePasswordChange: function(e) {
+    this.setState({password: e.target.value});
+  },
+
+  handleSubmit: function(e) {
+    e.preventDefault();
+    var username = this.state.username.trim();
+    var password = this.state.password.trim();
+    if (!username || !password){
+      return;
+    }
+    this.handleLoginSubmit({username: username, password: password});//this.props.onSignupSubmit({username: username, password: password});
+    this.setState({username: '', password: ''});
+  },
+
+  handleLoginSubmit: function(user){
+    $.ajax({
+      url: "http://52.35.193.149:8080/Vanguards/Login",
+      data: user,
+      success: function(data){
+        this.setState({data:data});
+        console.log(data);
+      }.bind(this),
+      error: function(xhr, status, err){
+        console.error("http://52.35.193.149:8080/Vanguards/Login", status, err.toString());
+      }.bind(this)
+    });
+  },
+
+  render: function() {
+    return (
+      <div>
+        <h1>Login</h1>
+        <form className="loginForm" onSubmit={this.handleSubmit}>
+          <input type="text" placeholder="Username" value={this.state.username} onChange={this.handleUsernameChange} /><br/><br/>
+          <input type="password" placeholder="Password" value={this.state.password} onChange={this.handlePasswordChange} /><br/><br/><br/>
+          <input type="submit" value="Submit" />
+        </form>
+      </div>
+    );
+  }
+});
+
 
 var oldData = [
     {id: 1, time: 5, winningTeam: "Red"},
@@ -329,6 +391,67 @@ var Download = React.createClass({
         );
   }
 });
+
+var Deathmap = React.createClass({
+    render: function() {
+        return (
+        <div>
+            <h1>Death Locations!</h1>
+            <canvas id="canvas" width="693" height="158"></canvas>
+        </div>
+        );
+	},
+	componentDidMount: function (){
+		this.getDeathsFromServer();
+        
+    },
+	getDeathsFromServer: function (){
+		$.ajax({
+            url: "http://52.35.193.149:8080/Vanguards/GetDeathInfo",
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+				console.log(data);
+                this.setState({data: data});
+				console.log(this.state.data);
+				this.createDeathmap();
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        });
+	},
+	createDeathmap: function () {
+		var json = [];
+		var heat = simpleheat('canvas');
+		heat.max(18);
+		console.log(this.state.data);
+        if(this.state.data != ""){
+            json = JSON.parse(this.state.data);
+			for(var i = 0; i < json.length; i++){
+				var vals = json[i].split(",");
+				var xval = parseInt(vals[0]);
+				xval = (xval/20)+(693/2);
+				var yval = parseInt(vals[1]);
+				yval = (yval/20)+(158/2);
+				console.log(Math.round(xval)+" "+Math.round(yval));
+				this.datas.push([Math.round(xval),Math.round(yval),1]);
+			}
+			heat.radius(10,5);
+			heat.data(this.datas);
+			heat.draw();
+			var c = document.getElementById("canvas");
+			var ctx = c.getContext("2d");
+			ctx.fillStyle = "#009933";
+			ctx.fillRect(0,0,693,158);
+        }
+	},
+	getInitialState: function( ){
+        return {data:[]};
+    },
+	datas: []
+});
+
 var AbilityInfoPage = React.createClass({
     loadAbilityDataFromServer: function() {
         $.ajax({
@@ -365,13 +488,14 @@ var AbilityInfoPage = React.createClass({
 // Run the routes
 var routes = (
       <Router>
-        <Route name="app" path="/" component={App}>
-          <Route name="page" path="/page" component={Page} />
-          <Route name="abilityInfoPage" path="/abilityInfoPage" component={AbilityInfoPage} />
-		  <Route name="download" path="/download" component={Download} />
-          <Route name="gameDetails" path="/gameDetails/:gameid" component={GameDetails}/>
-          <Route name="home" path="/" component={GameDetails}/>
-          <Route path="*" component={Home}/>
+        <Route path="/" component={App}>
+          <Route path="page" component={Page} />
+          <Route path="abilityInfoPage" component={AbilityInfoPage} />
+    		  <Route path="download" component={Download} />
+          <Route path="login" component={Login} />
+          <Route path="deathmap" component={Deathmap} />
+          <Route path="gameDetails/:gameid" component={GameDetails} />
+          <Route path="*" component={Home} />
         </Route>
       </Router>
 );
