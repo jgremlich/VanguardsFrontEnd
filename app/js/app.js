@@ -21,6 +21,9 @@ var App = React.createClass({
                 <ul className="nav navbar-nav">
                   <li><Link to="page">Games</Link></li>
                 </ul>
+				<ul className="nav navbar-nav">
+                  <li><Link to="download">Download</Link></li>
+                </ul>
               </div>
             </div>
         </nav>
@@ -156,11 +159,23 @@ var Page = React.createClass({
   }
 });
 
+var Download = React.createClass({
+    render: function() {
+        return (
+        <div>
+            <h1>Download our game!</h1>
+            <a href="http://52.35.193.149:8080/Vanguards/DownloadGame" className="btn btn-lg btn-primary">Download</a>
+        </div>
+        );
+  }
+});
+
 // Run the routes
 var routes = (
       <Router>
         <Route name="app" path="/" component={App}>
           <Route name="page" path="/page" component={Page} />
+		  <Route name="download" path="/download" component={Download} />
           <Route name="gameDetails" path="/gameDetails/:gameid" component={GameDetails}/>
           <Route name="home" path="/" component={GameDetails}/>
           <Route path="*" component={Home}/>
