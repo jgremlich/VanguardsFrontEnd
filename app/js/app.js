@@ -72,7 +72,7 @@ var SignupForm = React.createClass({
     if (!username || !password){
       return;
     }
-    this.handleSignupSubmit({User:{username: username, password: password, role: "none", account_level: 1}});//this.props.onSignupSubmit({username: username, password: password});
+    this.handleSignupSubmit({username: username, password: password, role: "none", account_level: 1});//this.props.onSignupSubmit({username: username, password: password});
     this.setState({username: '', password: ''});
   },
 
@@ -84,6 +84,7 @@ var SignupForm = React.createClass({
       data: user,
       success: function(data){
         this.setState({data:data});
+        console.log(data);
       }.bind(this),
       error: function(xhr, status, err){
         console.error("http://52.35.193.149:8080/Vanguards/CreateUser", status, err.toString());
